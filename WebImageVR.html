@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Raymond Web VR</title>
+	<style>
+		body { margin: 0; overflow: hidden; background-color: #ffffff; }
+		.tm  { position: absolute; top: 10px; right: 10px; }
+    </style>	
+</head>
+<body>
+
+	<!--<div id="sphere"></div>-->
+	<!--<a href="http://thematicmapping.org/" target="parent" class="tm">
+		<img src="http://thematicmapping.org/img/thematicmapping.png">
+	</a>	-->
+	<script src="http://threejs.org/build/three.min.js"></script> <!-- import from the Internet-->
+	<script src="js/OrbitControls.js"></script>	
+	<script src="js/Detector.js"></script>	
+	<script src="js/DeviceOrientationControls.js"></script>			
+	<script>
+
+ 		// if(!window.DeviceOrientationEvent){
+        // 	alert.("偵測到您的手機不支援VR功能");
+    	// }
+		alert.("偵測到您的手機不支援VR功能");
+
+		// var webglEl = document.getElementById('sphere');
+
+		var width  = window.innerWidth,
+			height = window.innerHeight;
+
+		var scene = new THREE.Scene();
+
+		var camera = new THREE.PerspectiveCamera(75, width / height, 1, 800);
+		camera.position.x = 0.1;
+
+		var renderer = Detector.webgl ? new THREE.WebGLRenderer() : new THREE.CanvasRenderer();
+		renderer.setSize(width, height);
+
+		var sphere = new THREE.Mesh(
+			new THREE.SphereGeometry(150, 48, 48),
+			new THREE.MeshBasicMaterial({
+				map: THREE.ImageUtils.loadTexture('church.jpg')
+			})
+		);
+		sphere.scale.x = -1;
+		scene.add(sphere);
+
+		// var controls = new THREE.OrbitControls(camera); //滑動 control
+		// controls.noPan = true;
+		// controls.noZoom = true; 
+		// controls.autoRotate = true;	// 自動旋轉
+		// controls.autoRotateSpeed = 0.5; 	//自動旋轉速度
+		
+		controls = new THREE.DeviceOrientationControls( camera );// Mobile VR Sensor Orientation
+
+		// webglEl.appendChild(renderer.domElement);
+		document.body.appendChild(renderer.domElement);
+
+		render();
+
+		function render() {
+			controls.update();
+			requestAnimationFrame(render);
+			renderer.render(scene, camera);
+		}
+			
+		//縮放視窗時從畫size
+		function onWindowResize() {
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+		function onMouseWheel(event) {
+			event.preventDefault();
+			
+			if (event.wheelDeltaY) { // WebKit
+				camera.fov -= event.wheelDeltaY * 0.05;
+			} else if (event.wheelDelta) { 	// Opera / IE9
+				camera.fov -= event.wheelDelta * 0.05;
+			} else if (event.detail) { // Firefox
+				camera.fov += event.detail * 1.0;
+			}
+
+			camera.fov = Math.max(40, Math.min(100, camera.fov));
+			camera.updateProjectionMatrix();
+		}
+
+		document.addEventListener('mousewheel', onMouseWheel, false);
+		document.addEventListener('DOMMouseScroll', onMouseWheel, false);
+		window.addEventListener( 'resize', onWindowResize, false );
+
+	</script>
+</body>
+</html>
